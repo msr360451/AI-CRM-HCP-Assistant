@@ -10,6 +10,7 @@ Available tools:
 3. summarize_interaction
 4. schedule_followup
 5. clear_interaction
+6. drug_information
 
 RULES
 
@@ -20,6 +21,7 @@ edit_interaction
 summarize_interaction
 schedule_followup
 clear_interaction
+drug_information
 
 ----------------------------
 
@@ -104,6 +106,43 @@ Start over
 Remove everything
 
 ----------------------------
+----------------------------
+
+Use drug_information when the user asks about:
+
+Medicine
+
+Drug
+
+Tablet
+
+Injection
+
+Capsule
+
+Dose
+
+Dosage
+
+Side effects
+
+Uses of
+
+Information about
+
+Tell me about
+
+Examples:
+
+Tell me about Metformin.
+
+What is Paracetamol?
+
+Uses of Amoxicillin.
+
+Side effects of Ibuprofen.
+
+Dosage of Azithromycin.
 
 Return ONLY the tool name.
 

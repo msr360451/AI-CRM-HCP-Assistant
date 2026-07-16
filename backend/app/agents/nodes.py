@@ -9,6 +9,7 @@ from app.tools.interaction_tools import (
     summarize_interaction,
     schedule_followup,
     clear_interaction,
+    drug_information,
 )
 
 
@@ -39,6 +40,7 @@ def detect_intent(state):
         "summarize_interaction",
         "schedule_followup",
         "clear_interaction",
+        "drug_information",
     ]
 
     if intent not in valid_tools:
@@ -56,11 +58,12 @@ def detect_intent(state):
 
 def execute_tool(state):
     """
-    Execute the selected tool.
+    Execute the selected LangGraph tool.
     """
 
     tool = state["intent"]
     message = state["user_message"]
+    interaction = state.get("interaction", {})
 
     print("\n========== EXECUTING ==========")
     print(tool)
@@ -76,7 +79,10 @@ def execute_tool(state):
 
     elif tool == "summarize_interaction":
 
-        result = summarize_interaction.invoke(message)
+        result = summarize_interaction.func(
+            message,
+            interaction
+        )
 
     elif tool == "schedule_followup":
 
@@ -86,9 +92,14 @@ def execute_tool(state):
 
         result = clear_interaction.invoke(message)
 
+    elif tool == "drug_information":
+
+        result = drug_information.invoke(message)
+
     else:
 
         result = {
+            "tool": "unknown",
             "reply": "Unknown tool."
         }
 

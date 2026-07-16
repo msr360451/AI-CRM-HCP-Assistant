@@ -38,14 +38,12 @@ builder.add_edge(
 graph = builder.compile()
 
 
-def run_agent(message: str):
-    """
-    Execute the LangGraph workflow.
-    """
+def run_agent(message: str, interaction: dict):
 
     result = graph.invoke(
         {
             "user_message": message,
+            "interaction": interaction,
             "intent": "",
             "response": {}
         }

@@ -434,16 +434,39 @@ def edit_interaction(message: str):
 
 
 @tool
-def summarize_interaction(message: str):
+def summarize_interaction(message: str, interaction: dict):
     """
-    Generate a summary of an HCP interaction.
+    Generate summary from the current CRM interaction.
     """
+
     prompt = f"""
+You are an AI CRM assistant.
+
 Summarize the following HCP interaction in exactly 3 concise bullet points.
 
-Interaction:
+Interaction Details
 
-{message}
+Doctor: {interaction.get("hcpName","")}
+
+Interaction Type: {interaction.get("interactionType","")}
+
+Date: {interaction.get("date","")}
+
+Time: {interaction.get("time","")}
+
+Attendees: {interaction.get("attendees","")}
+
+Topics: {interaction.get("topics","")}
+
+Sentiment: {interaction.get("sentiment","")}
+
+Materials Shared: {interaction.get("materialsShared",False)}
+
+Samples Distributed: {interaction.get("samplesDistributed",False)}
+
+Outcomes: {interaction.get("outcomes","")}
+
+Follow Up: {interaction.get("followUp","")}
 """
 
     response = llm.invoke(prompt)
@@ -452,7 +475,6 @@ Interaction:
         "tool": "summarize_interaction",
         "reply": response.content
     }
-
 
 @tool
 def schedule_followup(message: str):
@@ -513,6 +535,42 @@ def clear_interaction(message: str = ""):
             "followUp": ""
         }
     }
+@tool
+def drug_information(message: str):
+    """
+    Provide information about a medicine or drug.
+    """
+
+    prompt = f"""
+You are an AI pharmaceutical assistant.
+
+The user is asking about a medicine.
+
+Provide a short and professional response in this format:
+
+Drug Name:
+
+Category:
+
+Uses:
+
+Common Side Effects:
+
+Typical Dosage:
+
+Important Precautions:
+
+User Question:
+
+{message}
+"""
+
+    response = llm.invoke(prompt)
+
+    return {
+        "tool": "drug_information",
+        "reply": response.content
+    }
 
 
 TOOLS = [
@@ -521,4 +579,5 @@ TOOLS = [
     summarize_interaction,
     schedule_followup,
     clear_interaction,
+    drug_information,
 ]

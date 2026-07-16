@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch , useSelector } from "react-redux";
 import api from "../services/api";
 import { updateMultipleFields } from "../redux/interactionSlice";
 import MessageBubble from "./MessageBubble";
@@ -7,13 +7,17 @@ import MessageBubble from "./MessageBubble";
 export default function ChatPanel() {
 
     const dispatch = useDispatch();
+    const interaction = useSelector(
+    (state) => state.interaction
+);
+
 
     const [message, setMessage] = useState("");
 
     const [messages, setMessages] = useState([
         {
             sender: "assistant",
-            message: "👋 Hello! Tell me about today's HCP interaction."
+            message: "👋 Hello! I can help you log, edit, summarize, schedule follow-ups, and clear HCP interactions."
         }
     ]);
 
@@ -24,12 +28,12 @@ export default function ChatPanel() {
         const userMessage = message;
 
         // Add user message
-        setMessages(prev => [
+        setMessages((prev) => [
             ...prev,
             {
                 sender: "user",
-                message: userMessage
-            }
+                message: userMessage,
+            },
         ]);
 
         setMessage("");
@@ -37,53 +41,97 @@ export default function ChatPanel() {
         try {
 
             const response = await api.post("/chat", {
-                message: userMessage
-            });
+    message: userMessage,
+    interaction: interaction,
+});
 
-            // ******** DEBUG ********
             console.log("========== BACKEND RESPONSE ==========");
             console.log(response.data);
             console.log("======================================");
-            // ************************
 
-            // Show assistant reply
-            setMessages(prev => [
+            const tool = response.data.tool;
+
+            let assistantMessage = response.data.reply || "Done.";
+
+            // Show tool name along with response
+            setMessages((prev) => [
                 ...prev,
                 {
                     sender: "assistant",
                     message:
-                        response.data.reply ||
-                        "Done."
-                }
+                        `🛠 Tool Used: ${tool}\n\n${assistantMessage}`,
+                },
             ]);
 
-            // Update Redux
-            if (response.data.data) {
+            // -----------------------------
+            // Handle each LangGraph Tool
+            // -----------------------------
 
-                console.log("Updating Redux with:");
+            switch (tool) {
 
-                console.log(response.data.data);
+                case "log_interaction":
 
-                dispatch(
-                    updateMultipleFields(
-                        response.data.data
-                    )
-                );
+                    dispatch(
+                        updateMultipleFields(
+                            response.data.data
+                        )
+                    );
+
+                    break;
+
+                case "edit_interaction":
+
+                    dispatch(
+                        updateMultipleFields(
+                            response.data.data
+                        )
+                    );
+
+                    break;
+
+                case "schedule_followup":
+
+                    dispatch(
+                        updateMultipleFields(
+                            response.data.data
+                        )
+                    );
+
+                    break;
+
+                case "clear_interaction":
+
+                    dispatch(
+                        updateMultipleFields(
+                            response.data.data
+                        )
+                    );
+
+                    break;
+
+                case "summarize_interaction":
+
+                    // Summary is already shown in chat.
+                    // No Redux update required.
+
+                    break;
+
+                default:
+
+                    console.log("Unknown Tool");
 
             }
 
         } catch (error) {
 
-            console.error("Chat Error:");
-
             console.error(error);
 
-            setMessages(prev => [
+            setMessages((prev) => [
                 ...prev,
                 {
                     sender: "assistant",
-                    message: "❌ Backend not connected."
-                }
+                    message: "❌ Unable to connect to backend.",
+                },
             ]);
 
         }
@@ -106,13 +154,13 @@ export default function ChatPanel() {
 
                 <p className="text-sm text-gray-500">
 
-                    Log interaction using natural language
+                    Powered by LangGraph + Groq
 
                 </p>
 
             </div>
 
-            {/* Messages */}
+            {/* Chat */}
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
 
@@ -162,7 +210,7 @@ export default function ChatPanel() {
 
                 >
 
-                    Log
+                    Send
 
                 </button>
 
