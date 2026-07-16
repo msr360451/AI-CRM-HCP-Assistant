@@ -55,6 +55,7 @@ The AI agent uses the following tools:
 - Summarize Interaction
 - Schedule Follow-up
 - Clear Interaction
+- drug_information
 
 ---
 
